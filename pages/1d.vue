@@ -1,7 +1,6 @@
 <template>
   <Navbar current-page="1d"></Navbar>
   <div class="flex h-screen bg-center bg-no-repeat bg-cover bg-hero-pattern">
-    <!-- <sponsorBanner1></sponsorBanner1> -->
     <main class="m-auto w-1/2 min-w-fit overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 backdrop-blur bg-white bg-opacity-60">
       <DigitDisplaydigit
         class="my-8"
@@ -25,7 +24,6 @@
         </button>
       </div>
     </main>
-    <!-- <sponsorBanner2></sponsorBanner2> -->
     <footer class="absolute bottom-4 w-screen text-center">
       <span class="text-slate-800">&copy; <strong>UTCSSA</strong> Junyu Yao and Tech Department, 2024.</span>
     </footer>
@@ -33,31 +31,43 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 
-const { $confetti } = useNuxtApp().vueApp.config.globalProperties
-console.log(useNuxtApp().vueApp)
-const dispNum = ref<number>(0)
-const digitNum = ref<number>(2)
-const loading = ref<boolean>(false)
-const lotterylist = Array.from({length: 310}, (_, i) => i + 1)
+const { $confetti } = useNuxtApp().vueApp.config.globalProperties;
+const dispNum = ref<number>(0);
+const digitNum = ref<number>(2);
+const loading = ref<boolean>(false);
+const lotterylist = ref<number[]>([]); // Use ref to store fetched data
 
+// Fetch data from your backend API
+const loadData = async () => {
+  try {
+    const response = await fetch('/api/sheet'); // Update to the correct API route
+    const result = await response.json();
+    lotterylist.value = result.data.map((row: string[]) => Number(row[0])); // Assuming each row has a number in column J
+  } catch (error) {
+    console.error('Error fetching lottery numbers:', error);
+  }
+};
 
+// Call loadData when the component is mounted
+onMounted(loadData);
 
 const draw = () => {
-  if (digitNum.value == 2) {
-    console.log('end')
-    digitNum.value = 0
-    dispNum.value = lotterylist[Math.floor(Math.random() * lotterylist.length)]
-    lotterylist.splice(lotterylist.indexOf(dispNum.value),1)
-    console.log(dispNum.value)
+  if (digitNum.value === 2) {
+    console.log('end');
+    digitNum.value = 0;
+    dispNum.value = lotterylist.value[Math.floor(Math.random() * lotterylist.value.length)];
+    lotterylist.value.splice(lotterylist.value.indexOf(dispNum.value), 1);
+    console.log(dispNum.value);
   } else {
-    console.log('next')
-    digitNum.value += 1
+    console.log('next');
+    digitNum.value += 1;
   }
-}
+};
 
 const onAnimationEnd = () => {
-  loading.value = false
+  loading.value = false;
   $confetti.start({
     particlesPerFrame: 2,
     defaultDropRate: 15,
@@ -66,14 +76,14 @@ const onAnimationEnd = () => {
       { type: 'heart' },
       { type: 'rect' },
     ]
-  })
+  });
   setTimeout(() => {
-    $confetti.stop()
-  }, 2000)
-}
+    $confetti.stop();
+  }, 2000);
+};
 </script>
 
-<style >
+<style>
 .column {
   float: left;
   width: 25%;
