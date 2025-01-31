@@ -6,9 +6,7 @@ export default defineNuxtConfig({
     '~/plugins/vue-confetti.client.ts'
   ],
   nitro: {
-    preset: 'vercel',
-    vercel: {
-      runtime: 'nodejs18.x'
-    }
+    preset: 'vercel', // Ensures Nitro is set up for Vercel
+    runtime: 'nodejs18.x' // Explicitly sets the correct runtime
   }
 })
